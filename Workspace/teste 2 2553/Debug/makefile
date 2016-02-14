@@ -136,7 +136,7 @@ all: teste\ 2\ 2553.out
 teste\ 2\ 2553.out: $(OBJS) $(CMD_SRCS) $(GEN_CMDS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: MSP430 Linker'
-	"C:/ti/ccsv6/tools/compiler/ti-cgt-msp430_4.4.6/bin/cl430" -vmsp --abi=eabi --use_hw_mpy=none --advice:power=all -g --define=__MSP430G2553__ --display_error_number --diag_wrap=off --diag_warning=225 --printf_support=minimal -z -m"teste 2 2553.map" --stack_size=80 --heap_size=80 -i"C:/ti/ccsv6/ccs_base/msp430/include" -i"C:/ti/ccsv6/tools/compiler/ti-cgt-msp430_4.4.6/lib" -i"C:/ti/ccsv6/tools/compiler/ti-cgt-msp430_4.4.6/include" --reread_libs --diag_wrap=off --warn_sections --display_error_number --xml_link_info="teste 2 2553_linkInfo.xml" --use_hw_mpy=none --rom_model -o "teste 2 2553.out" $(ORDERED_OBJS)
+	"C:/ti/ccsv6/tools/compiler/ti-cgt-msp430_4.4.6/bin/cl430" -vmsp --abi=eabi -O0 --use_hw_mpy=none --advice:power=all -g --define=__MSP430G2553__ --display_error_number --diag_wrap=off --diag_warning=225 --printf_support=minimal -z -m"teste 2 2553.map" --stack_size=80 --heap_size=80 -i"C:/ti/ccsv6/ccs_base/msp430/include" -i"C:/ti/ccsv6/tools/compiler/ti-cgt-msp430_4.4.6/lib" -i"C:/ti/ccsv6/tools/compiler/ti-cgt-msp430_4.4.6/include" --reread_libs --diag_wrap=off --warn_sections --display_error_number --xml_link_info="teste 2 2553_linkInfo.xml" --use_hw_mpy=none --rom_model -o "teste 2 2553.out" $(ORDERED_OBJS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

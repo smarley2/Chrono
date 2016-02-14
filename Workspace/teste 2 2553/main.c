@@ -1,7 +1,7 @@
 #include <msp430.h>
 
-unsigned short ponto2 = 0, a = 0;
-float vel_ms = 0, vel_fps = 0;
+unsigned short ponto2 = 0, estado = 0;
+unsigned long vel_ms = 0, vel_fps = 0;
 
 int main(void)
 {
@@ -30,11 +30,14 @@ int main(void)
 
   while(1)
   {
-	  if(a==1)
+	  if(estado == 2)
 	  {
 //		  vel_ms = 0.5 / (ponto2 * (1/16000000));
 //		  vel_fps = vel_ms / 0.3048;
-		  a = 0;
+//		  vel_ms = 8000 / ponto2; // 1/f * distância / clks
+//		  vel_fps = 26246719 / ponto2; // 1/feet * 1/f * distância / clks
+		  vel_ms = vel_ms + 10;
+		  estado = 0;
 	  }
   }
 
@@ -44,18 +47,23 @@ int main(void)
 #pragma vector=PORT2_VECTOR
 __interrupt void Port_2(void)
 {
-	if(P2IFG & 0x8) //Interrupção pino 2.3, ponto1
+	if((P2IFG & 0x8) && (estado == 0)) //Interrupção pino 2.3, ponto1
 	{
 		TA0R = 0;
+		estado = 1;
 		P2IFG &= ~0x8;
 	}
-	if(P2IFG & 0x18) //Interrupção pino 2.4, ponto2
+	if((P2IFG & 0x18) && (estado == 1)) //Interrupção pino 2.4, ponto2
 	{
 		ponto2 = TA0R;
-		a = 1;
+		estado = 2;
 		P2IFG &= ~0x18;
 	}
 }
+
+
+
+
 
 
 
