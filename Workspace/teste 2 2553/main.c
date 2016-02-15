@@ -1,6 +1,7 @@
 #include <msp430.h>
 
-unsigned short ponto2 = 0, estado = 0;
+unsigned short ponto2 = 0;
+unsigned short volatile estado = 0;
 unsigned long vel_ms = 0, vel_fps = 0;
 
 int main(void)
@@ -26,7 +27,7 @@ int main(void)
 
   TACTL = TASSEL_2 + MC_2;           // SMCLK, contmode
 
-  __bis_SR_register(LPM0_bits + GIE);       // Enter LPM4 w/interrupt
+  __bis_SR_register(GIE);
 
   while(1)
   {
@@ -34,9 +35,8 @@ int main(void)
 	  {
 //		  vel_ms = 0.5 / (ponto2 * (1/16000000));
 //		  vel_fps = vel_ms / 0.3048;
-//		  vel_ms = 8000 / ponto2; // 1/f * distância / clks
-//		  vel_fps = 26246719 / ponto2; // 1/feet * 1/f * distância / clks
-		  vel_ms = vel_ms + 10;
+		  vel_ms = 8000000 / ponto2; // 1/f * distância / clks
+		  vel_fps = 26246719 / ponto2; // 1/feet * 1/f * distância / clks
 		  estado = 0;
 	  }
   }
@@ -51,37 +51,12 @@ __interrupt void Port_2(void)
 	{
 		TA0R = 0;
 		estado = 1;
-		P2IFG &= ~0x8;
 	}
 	if((P2IFG & 0x18) && (estado == 1)) //Interrupção pino 2.4, ponto2
 	{
 		ponto2 = TA0R;
 		estado = 2;
-		P2IFG &= ~0x18;
 	}
+
+	P2IFG &= ~0x18;
 }
-
-
-
-
-
-
-
-// Port 1 interrupt service routine
-/*#pragma vector=PORT2_VECTOR
-__interrupt void Port_1(void)
-{
-	if(a==0)
-	{
-		TA0R = 0;
-		a = 1;
-	}
-	else
-	{
-		ponto2 = TA0R;
-		a = 0;
-	}
-
-//  P1OUT ^= 0x40;                            // P1.0 = toggle
-  P1IFG &= ~0x8;                           // P1.3 IFG cleared
-}*/
