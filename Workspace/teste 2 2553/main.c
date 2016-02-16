@@ -1,4 +1,7 @@
 #include <msp430.h>
+#include <lcd.h>
+
+//#include "lcd16.h"
 
 unsigned short ponto2 = 0;
 unsigned short volatile estado = 0;
@@ -21,9 +24,9 @@ int main(void)
   BCSCTL2 = SELM_2 + DIVM_0 + SELS + DIVS_0;
   BCSCTL3 = XT2S_2 + XCAP_3;
 
+//  P1DIR = 0x41;                             // P1.6 and P1.0 output, else input
 
-
-  P1DIR = 0x41;                             // P1.6 and P1.0 output, else input
+  P2DIR |= 0x01;
 
   P2OUT =  0x18;                            // P2.3 and P2.4 set, else reset
   P2REN |= 0x18;                            // P2.3 and P2.4 pullup
@@ -34,6 +37,11 @@ int main(void)
   TACTL = TASSEL_2 + MC_2;           // SMCLK, contmode
 
   __bis_SR_register(GIE);
+
+  lcd_init();
+  send_string("Manpreet Singh");
+  send_command(0xC0);
+  send_string("Minhas");
 
   while(1)
   {
