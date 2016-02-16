@@ -119,8 +119,6 @@ s++;
 
 void lcd_init(void)
 {
-P1DIR |= 0xFF;
-P1OUT &= 0x00;
 send_command(0x33);
 send_command(0x32);
 send_command(0x28); // 4 bit mode

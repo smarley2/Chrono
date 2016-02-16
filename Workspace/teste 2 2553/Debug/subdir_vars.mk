@@ -7,27 +7,27 @@ CMD_SRCS += \
 ../lnk_msp430g2553.cmd 
 
 C_SRCS += \
-../lcd16.c \
-../main.c 
+../main.c \
+../tinyprintf.c 
 
 OBJS += \
-./lcd16.obj \
-./main.obj 
+./main.obj \
+./tinyprintf.obj 
 
 C_DEPS += \
-./lcd16.pp \
-./main.pp 
+./main.pp \
+./tinyprintf.pp 
 
 C_DEPS__QUOTED += \
-"lcd16.pp" \
-"main.pp" 
+"main.pp" \
+"tinyprintf.pp" 
 
 OBJS__QUOTED += \
-"lcd16.obj" \
-"main.obj" 
+"main.obj" \
+"tinyprintf.obj" 
 
 C_SRCS__QUOTED += \
-"../lcd16.c" \
-"../main.c" 
+"../main.c" \
+"../tinyprintf.c" 
 
 
