@@ -17,6 +17,12 @@ int main(void)
   BCSCTL1 = CALBC1_16MHZ;                   // Set range
   DCOCTL = CALDCO_16MHZ;                    // Set DCO step + modulation
 
+  BCSCTL1 = DIVA_0;
+  BCSCTL2 = SELM_2 + DIVM_0 + SELS + DIVS_0;
+  BCSCTL3 = XT2S_2 + XCAP_3;
+
+
+
   P1DIR = 0x41;                             // P1.6 and P1.0 output, else input
 
   P2OUT =  0x18;                            // P2.3 and P2.4 set, else reset
@@ -52,7 +58,7 @@ __interrupt void Port_2(void)
 		TA0R = 0;
 		estado = 1;
 	}
-	if((P2IFG & 0x18) && (estado == 1)) //Interrupção pino 2.4, ponto2
+	if((P2IFG & 0x10) && (estado == 1)) //Interrupção pino 2.4, ponto2
 	{
 		ponto2 = TA0R;
 		estado = 2;
@@ -60,3 +66,5 @@ __interrupt void Port_2(void)
 
 	P2IFG &= ~0x18;
 }
+
+
