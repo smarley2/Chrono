@@ -127,3 +127,22 @@ send_command(0x01); // display on cursor on
 send_command(0x06); // increment cursor
 send_command(0x80); // row 1 column 1
 }
+
+void integerToLcd(int integer )
+{
+
+unsigned char thousands,hundreds,tens,ones;
+thousands = integer / 1000;
+
+	send_data(thousands + 0x30);
+
+	hundreds = ((integer - thousands*1000)-1) / 100;
+
+	send_data( hundreds + 0x30);
+	tens=(integer%100)/10;
+
+	send_data( tens + 0x30);
+	ones=integer%10;
+
+	send_data( ones + 0x30);
+}
