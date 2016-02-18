@@ -132,17 +132,25 @@ void integerToLcd(int integer )
 {
 
 unsigned char thousands,hundreds,tens,ones;
-thousands = integer / 1000;
+	thousands = integer / 1000;
+	if(thousands>0)
+	{
+		send_data(thousands + 0x30);
+	}
 
-	send_data(thousands + 0x30);
-
+	// porque o -1 ?
 	hundreds = ((integer - thousands*1000)-1) / 100;
+	if(hundreds>0)
+	{
+		send_data( hundreds + 0x30);
+	}
 
-	send_data( hundreds + 0x30);
 	tens=(integer%100)/10;
-
+	if(tens>0)
+	{
 	send_data( tens + 0x30);
-	ones=integer%10;
+	}
 
+	ones=integer%10;
 	send_data( ones + 0x30);
 }
