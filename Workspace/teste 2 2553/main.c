@@ -3,7 +3,7 @@
 
 unsigned short ponto2 = 0;
 unsigned short volatile estado = 0;
-unsigned long vel_ms = 0, vel_fps = 0;
+unsigned long vel_ms = 0, vel_fps = 0, resto_vel_ms = 0, resto_vel_fps = 0;
 volatile int temp = 0;
 
 void pin_init();
@@ -46,16 +46,22 @@ int main(void)
 //		  ponto2 = 26246; //utilizado para teste
 
 		  vel_ms = 8000000 / ponto2; // 1/f * distância / clks
+		  resto_vel_ms = 8000000 % ponto2; // 1/f * distância / clks
 		  vel_fps = 26246719 / ponto2; // 1/feet * 1/f * distância / clks
+		  resto_vel_fps = 26246719 % ponto2; // 1/feet * 1/f * distância / clks
 //		  send_data(0x01);
 		  send_command(0x0E);
 		  send_command(0x80);
 		  send_string("Vel = ");
 		  integerToLcd(vel_ms);
+		  send_string(".");
+		  integerToLcd(resto_vel_ms);
 		  send_string(" m/s");
 		  send_command(0xC0);
 		  send_string("Vel = ");
 		  integerToLcd(vel_fps);
+		  send_string(".");
+		  integerToLcd(resto_vel_fps);
 		  send_string(" fps");
 		  temp=tempOut();
 		  send_command(0x94);
