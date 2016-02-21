@@ -1,7 +1,7 @@
 ******************************************************************************
-                  MSP430 Linker PC v4.4.3                      
+                  MSP430 Linker PC v4.4.6                      
 ******************************************************************************
->> Linked Mon Feb 15 12:28:26 2016
+>> Linked Tue Feb 16 21:26:33 2016
 
 OUTPUT FILE NAME:   <teste 1.out>
 ENTRY POINT SYMBOL: "_c_int00_noargs_noexit"  address: 0000e308

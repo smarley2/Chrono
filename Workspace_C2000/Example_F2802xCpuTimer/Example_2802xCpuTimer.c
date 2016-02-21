@@ -34,7 +34,10 @@
 
 #include "lcd.h"
 
+#define start_button GPIO_Number_34
 
+void wait_start(void);
+void escreve_shoot(void);
 void Adc_init(void);
 void temp_interna(void);
 void Int_init(void);
@@ -54,7 +57,7 @@ unsigned long timer1IntCount;
 unsigned long timer2IntCount;
 
 unsigned long ponto2 = 0, temperatura = 0;
-unsigned long volatile estado = 0;
+unsigned long volatile estado = 3;
 unsigned long vel_ms = 0, vel_fps = 0, resto_vel_ms = 0, resto_vel_fps = 0;
 
 ADC_Handle myAdc;
@@ -101,52 +104,20 @@ void main(void)
     Int_init();
 
     lcd_init();
-	send_string("Teste");
+	send_command(0x01); // Limpa a tela
+	send_command(0x80); // Primeira linha
+	send_string("Press Start");
 	
   while(1)
   {
+	  if(estado == 3)
+	  {
+		  wait_start();
+	  }
+
 	  if(estado == 2)
 	  {
-//		  vel_ms = 0.5 / (ponto2 * (1/50000000));
-//		  vel_fps = vel_ms / 0.3048;
-		  ponto2 = (0xFFFFFFFF - ponto2);
-		  if(ponto2 > 25000000)
-		  {
-			  send_command(0x01); // Limpa a tela
-			  send_command(0x0E); // Limpa a tela
-			  send_command(0x80); // Primeira linha
-			  send_string("Too slow, try again.");
-		  }
-		  else
-		  {
-			  vel_ms = 25000000 / ponto2; // 1/f * distância / clks
-			  resto_vel_ms = 25000000 % ponto2; // 1/f * distância / clks
-			  vel_fps = 82020997 / ponto2; // 1/feet * 1/f * distância / clks
-			  resto_vel_fps = 82020997 % ponto2; // 1/feet * 1/f * distância / clks
-			  send_command(0x01); // Limpa a tela
-			  send_command(0x0E); // Limpa a tela
-			  send_command(0x80); // Primeira linha
-			  send_string("Vel = ");
-			  integerToLcd(vel_ms);
-			  send_string(".");
-			  integerToLcd_resto(resto_vel_ms);
-			  send_string(" m/s");
-			  send_command(0xC0); // Segunda Linha
-			  send_string("Vel = ");
-			  integerToLcd(vel_fps);
-			  send_string(".");
-			  integerToLcd_resto(resto_vel_fps);
-			  send_string(" fps");
-			  temp_interna();
-			  temp_interna();
-			  send_command(0x94); // Terceira Linha
-			  send_string("Temp = ");
-			  integerToLcd(temperatura);
-			  send_string(" °C");
-		  }
-
-
-		  estado = 0;
+		  escreve_shoot();
 	  }
   }	
 	
@@ -194,22 +165,79 @@ __interrupt void xint2_isr(void)
     PIE_clearInt(myPie, PIE_GroupNumber_1);
 }
 
+void wait_start()
+{
+	 if(GPIO_getData(myGpio, start_button) == 0)
+		{
+			while(GPIO_getData(myGpio, start_button)==0){}
+			send_command(0x01); // Limpa a tela
+			send_command(0x80); // Primeira linha
+			send_string("Waiting Shoot");
+			estado = 0;
+		}
+}
 
+void escreve_shoot()
+{
+	//		  vel_ms = 0.5 / (ponto2 * (1/50000000));
+	//		  vel_fps = vel_ms / 0.3048;
+			  ponto2 = (0xFFFFFFFF - ponto2);
+			  if(ponto2 > 25000000)
+			  {
+				  send_command(0x01); // Limpa a tela
+				  send_command(0x0E); // Limpa a tela
+				  send_command(0x80); // Primeira linha
+				  send_string("Too slow, try again");
+				  send_command(0xC0); // Segunda Linha
+				  send_string("Waiting Start Button");
+			  }
+			  else
+			  {
+				  vel_ms = 25000000 / ponto2; // 1/f * distância / clks
+				  resto_vel_ms = 25000000 % ponto2; // 1/f * distância / clks
+				  vel_fps = 82020997 / ponto2; // 1/feet * 1/f * distância / clks
+				  resto_vel_fps = 82020997 % ponto2; // 1/feet * 1/f * distância / clks
+				  send_command(0x01); // Limpa a tela
+//				  send_command(0x0E); // Limpa a tela
+				  send_command(0x80); // Primeira linha
+				  send_string("Vel = ");
+				  integerToLcd(vel_ms);
+				  send_string(".");
+				  integerToLcd_resto(resto_vel_ms);
+				  send_string(" m/s");
+				  send_command(0xC0); // Segunda Linha
+				  send_string("Vel = ");
+				  integerToLcd(vel_fps);
+				  send_string(".");
+				  integerToLcd_resto(resto_vel_fps);
+				  send_string(" fps");
+				  temp_interna();
+				  temp_interna();
+				  send_command(0x94); // Terceira Linha
+				  send_string("Temp = ");
+				  integerToLcd(temperatura);
+				  send_string(" °C");
+				  send_command(0xD4); // Quarta Linha
+				  send_string("Waiting Start Button");
+			  }
 
+			  estado = 3;	//Waiting Start
+}
 
 void temp_interna(void)
 {
 	long temp_sensor = 0;
-    ADC_forceConversion(myAdc, ADC_SocNumber_4);
-    temp_sensor = ADC_readResult(myAdc, ADC_ResultNumber_4);
+	ADC_forceConversion(myAdc, ADC_SocNumber_0);
+    ADC_forceConversion(myAdc, ADC_SocNumber_1);
+    //Wait for end of conversion.
+    while(ADC_getIntStatus(myAdc, ADC_IntNumber_1) == 0){}
+    // Clear ADCINT1
+    ADC_clearIntFlag(myAdc, ADC_IntNumber_1);
 
+    temp_sensor = ADC_readResult(myAdc, ADC_ResultNumber_4);
     temperatura = ADC_getTemperatureC(myAdc, temp_sensor);
     return;
 }
-
-
-
-
 
 //===========================================================================
 // Configurações
@@ -224,41 +252,22 @@ void Adc_init(void)
     ADC_setVoltRefSrc(myAdc, ADC_VoltageRefSrc_Int);
     ADC_enableTempSensor(myAdc);                                            //Connect channel A5 internally to the temperature sensor
 
-    // Configure ADC
-    //Note: Channel ADCINA4  will be double sampled to workaround the ADC 1st sample issue for rev0 silicon errata
-//    ADC_setIntPulseGenMode(myAdc, ADC_IntPulseGenMode_Prior);               //ADCINT1 trips after AdcResults latch
-//    ADC_enableInt(myAdc, ADC_IntNumber_1);                                  //Enabled ADCINT1
-//    ADC_setIntMode(myAdc, ADC_IntNumber_1, ADC_IntMode_ClearFlag);          //Disable ADCINT1 Continuous mode
-//    ADC_setIntSrc(myAdc, ADC_IntNumber_1, ADC_IntSrc_EOC2);                 //setup EOC2 to trigger ADCINT1 to fire
-    // Tensão_bat
-//    ADC_setSocChanNumber (myAdc, ADC_SocNumber_0, ADC_SocChanNumber_A0);    //set SOC0 channel select to ADCINA4
-//    ADC_setSocChanNumber (myAdc, ADC_SocNumber_1, ADC_SocChanNumber_A3);    //set SOC1 channel select to ADCINA4
-    // Corrente
-//    ADC_setSocChanNumber (myAdc, ADC_SocNumber_2, ADC_SocChanNumber_A2);    //set SOC2 channel select to ADCINA2
-    // Tensao_pv
-//    ADC_setSocChanNumber (myAdc, ADC_SocNumber_3, ADC_SocChanNumber_A4);    //set SOC2 channel select to ADCINA2
     //Temperatura interna
-    ADC_setSocChanNumber (myAdc, ADC_SocNumber_4, ADC_SocChanNumber_A5);    //Set SOC0 channel select to ADCINA5
-
-    // ADC_setSocTrigSrc(myAdc, ADC_SocNumber_0, ADC_SocTrigSrc_EPWM4_ADCSOCA);    //set SOC0 start trigger on EPWM2A, due to round-robin SOC0 converts first then SOC1
-    // ADC_setSocTrigSrc(myAdc, ADC_SocNumber_1, ADC_SocTrigSrc_EPWM4_ADCSOCA);    //set SOC1 start trigger on EPWM2A, due to round-robin SOC0 converts first then SOC1
-    // ADC_setSocTrigSrc(myAdc, ADC_SocNumber_2, ADC_SocTrigSrc_EPWM4_ADCSOCA);    //set SOC2 start trigger on EPWM2A, due to round-robin SOC0 converts first then SOC1, then SOC2
-    // ADC_setSocTrigSrc(myAdc, ADC_SocNumber_3, ADC_SocTrigSrc_EPWM4_ADCSOCA);    //set SOC2 start trigger on EPWM2A, due to round-robin SOC0 converts first then SOC1, then SOC2
-
-    // ADC_setSocSampleWindow(myAdc, ADC_SocNumber_0, ADC_SocSampleWindow_7_cycles);   //set SOC0 S/H Window to 7 ADC Clock Cycles, (6 ACQPS plus 1)
-    // ADC_setSocSampleWindow(myAdc, ADC_SocNumber_1, ADC_SocSampleWindow_7_cycles);   //set SOC1 S/H Window to 7 ADC Clock Cycles, (6 ACQPS plus 1)
-    // ADC_setSocSampleWindow(myAdc, ADC_SocNumber_2, ADC_SocSampleWindow_7_cycles);   //set SOC2 S/H Window to 7 ADC Clock Cycles, (6 ACQPS plus 1)
-    // ADC_setSocSampleWindow(myAdc, ADC_SocNumber_3, ADC_SocSampleWindow_7_cycles);   //set SOC2 S/H Window to 7 ADC Clock Cycles, (6 ACQPS plus 1)
-    ADC_setSocSampleWindow(myAdc, ADC_SocNumber_4, ADC_SocSampleWindow_37_cycles);   //Set SOC1 acquisition period to 37 ADCCLK
+    ADC_setSocChanNumber (myAdc, ADC_SocNumber_0, ADC_SocChanNumber_A5);    //Set SOC0 channel select to ADCINA5
+    ADC_setSocChanNumber (myAdc, ADC_SocNumber_1, ADC_SocChanNumber_A5);    //Set SOC1 channel select to ADCINA5
+    ADC_setSocSampleWindow(myAdc, ADC_SocNumber_0, ADC_SocSampleWindow_37_cycles);   //Set SOC0 acquisition period to 37 ADCCLK
+    ADC_setSocSampleWindow(myAdc, ADC_SocNumber_1, ADC_SocSampleWindow_37_cycles);   //Set SOC1 acquisition period to 37 ADCCLK
+    ADC_setIntSrc(myAdc, ADC_IntNumber_1, ADC_IntSrc_EOC1);                 //Connect ADCINT1 to EOC1
+    ADC_enableInt(myAdc, ADC_IntNumber_1);                                  //Enable ADCINT1
 
 }
 
 void Gpio_init(void)
 {
-	GPIO_setPullUp(myGpio, GPIO_Number_34, GPIO_PullUp_Disable);   // Disable pullup
+	//GPIO utilizado para botões.
+	GPIO_setPullUp(myGpio, GPIO_Number_34, GPIO_PullUp_Enable);   // Disable pullup
 	GPIO_setMode(myGpio, GPIO_Number_34, GPIO_34_Mode_GeneralPurpose);  // GPIO34
-    GPIO_setDirection(myGpio, GPIO_Number_34, GPIO_Direction_Output);
-	GPIO_setLow(myGpio,GPIO_Number_34);  // GPIO34 - Output
+    GPIO_setDirection(myGpio, GPIO_Number_34, GPIO_Direction_Input);
 
 	// GPIO_setPullUp(myGpio, GPIO_Number_2, GPIO_PullUp_Disable);   // Disable pullup
 	// GPIO_setMode(myGpio, GPIO_Number_2, GPIO_2_Mode_GeneralPurpose);  // GPIO34
@@ -318,10 +327,6 @@ void Timer_init(void)
 	    TIMER_reload(myTimer1);
 	    TIMER_setEmulationMode(myTimer1, TIMER_EmulationMode_StopAfterNextDecrement);
 	    TIMER_enableInt(myTimer1);
-
-	// To ensure precise timing, use write-only instructions to write to the entire register. Therefore, if any
-	// of the configuration bits are changed in ConfigCpuTimer and InitCpuTimers (in f2802x_CpuTimers.h), the
-	// below settings must also be updated.
 
 	//   CpuTimer0Regs.TCR.all = 0x4001; // Use write-only instruction to set TSS bit = 0
 	    TIMER_start(myTimer0);
