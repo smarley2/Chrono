@@ -125,7 +125,7 @@ void main(void)
 
 __interrupt void cpu_timer1_isr(void)
 {
-    GPIO_toggle(myGpio, GPIO_Number_2);
+//    GPIO_toggle(myGpio, GPIO_Number_2);
 //  timer1IntCount = CpuTimer0Regs.PRD.all;
 //	timer0IntCount = CpuTimer0Regs.TIM.all;
 //	CpuTimer0Regs.TCR.bit.TRB = 1;
@@ -279,13 +279,13 @@ void Gpio_init(void)
     GPIO_setDirection(myGpio, GPIO_Number_28, GPIO_Direction_Input);
     GPIO_setQualification(myGpio, GPIO_Number_28, GPIO_Qual_Sync);
     GPIO_setExtInt(myGpio, GPIO_Number_28, CPU_ExtIntNumber_1);
-    GPIO_setPullUp(myGpio, GPIO_Number_28, GPIO_PullUp_Disable);
+    GPIO_setPullUp(myGpio, GPIO_Number_28, GPIO_PullUp_Enable);
 
     GPIO_setMode(myGpio, GPIO_Number_29, GPIO_29_Mode_GeneralPurpose);
     GPIO_setDirection(myGpio, GPIO_Number_29, GPIO_Direction_Input);
     GPIO_setQualification(myGpio, GPIO_Number_29, GPIO_Qual_Sync);
     GPIO_setExtInt(myGpio, GPIO_Number_29, CPU_ExtIntNumber_2);
-    GPIO_setPullUp(myGpio, GPIO_Number_29, GPIO_PullUp_Disable);
+    GPIO_setPullUp(myGpio, GPIO_Number_29, GPIO_PullUp_Enable);
 
 	//Configuração de GPIO´s para o LCD
     GPIO_setMode(myGpio, GPIO_Number_0, GPIO_0_Mode_GeneralPurpose);

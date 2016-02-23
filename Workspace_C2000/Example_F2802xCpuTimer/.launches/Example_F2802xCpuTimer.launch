@@ -5,7 +5,7 @@
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROGRAM.Texas Instruments XDS100v1 USB Debug Probe_0/C28xx" value="${build_artifact:Example_F2802xCpuTimer}"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_PROJECT.Texas Instruments XDS100v1 USB Debug Probe_0/C28xx" value="Example_F2802xCpuTimer"/>
 <stringAttribute key="com.ti.ccstudio.debug.debugModel.ATTR_TARGET_CONFIG" value="${target_config_active_default:Example_F2802xCpuTimer}"/>
-<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.Texas Instruments XDS100v1 USB Debug Probe_0/C28xx" value="C:/projetos\Chrono\trunk\Workspace_C2000\Example_F2802xCpuTimer\RAM\Example_F2802xCpuTimer.out"/>
+<stringAttribute key="com.ti.ccstudio.debug.debugModel.MRU_PROGRAM.Texas Instruments XDS100v1 USB Debug Probe_0/C28xx" value="C:/projetos\Chrono\trunk\Workspace_C2000\Example_F2802xCpuTimer\Flash\Example_F2802xCpuTimer.out"/>
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/Example_F2802xCpuTimer"/>
 </listAttribute>
